@@ -1,6 +1,7 @@
 from database import get_session
 from models import Transacao, TipoTransacao
 from datetime import date
+import calendar
 
 def criar_transacao(descricao, valor, tipo, categoria_id, data=None):
     session = get_session()
@@ -24,8 +25,9 @@ def listar_transacoes(mes=None, ano=None):
     try:
         query = session.query(Transacao)
         if mes and ano:
+            ultimo_dia = calendar.monthrange(ano, mes)[1]
             query = query.filter(
-                Transacao.data.between(date(ano, mes, 1), date(ano, mes, 28))
+                Transacao.data.between(date(ano, mes, 1), date(ano, mes, ultimo_dia))
             )
         return query.order_by(Transacao.data.desc()).all()
     finally:
