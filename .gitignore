@@ -3,3 +3,13 @@ __pycache__/
 .env
 venv/
 *.png
+
+# Frontend dependencies and builds
+node_modules/
+dist/
+build/
+.next/
+.nuxt/
+out/
+.cache/
+.parcel-cache/
