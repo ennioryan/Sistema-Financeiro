@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Dashboard moderno e premium de finanças pessoais. Gerencie transações, categorias, metas e visualize relatórios dinâmicos.">
+    <title>Finanças Pro | Dashboard</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- CSS Estilos -->
+    <link rel="stylesheet" href="/static/css/style.css">
+    <!-- FontAwesome para ícones premium -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <!-- Chart.js para gráficos interativos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="glass-panel">
+            <div class="brand">
+                <i class="fa-solid fa-wallet brand-icon"></i>
+                <div class="brand-name">Finanças Pro</div>
+            </div>
+            <div class="period-picker">
+                <label for="filter-month" style="font-size: 0.85rem; color: var(--text-secondary);">Período:</label>
+                <select id="filter-month" class="input-field">
+                    <option value="1">Janeiro</option>
+                    <option value="2">Fevereiro</option>
+                    <option value="3">Março</option>
+                    <option value="4">Abril</option>
+                    <option value="5">Maio</option>
+                    <option value="6">Junho</option>
+                    <option value="7">Julho</option>
+                    <option value="8">Agosto</option>
+                    <option value="9">Setembro</option>
+                    <option value="10">Outubro</option>
+                    <option value="11">Novembro</option>
+                    <option value="12">Dezembro</option>
+                </select>
+                <select id="filter-year" class="input-field">
+                    <option value="2024">2024</option>
+                    <option value="2025">2025</option>
+                    <option value="2026" selected>2026</option>
+                    <option value="2027">2027</option>
+                </select>
+            </div>
+        </header>
+
+        <!-- Resumo Financeiro Cards -->
+        <div class="summary-grid">
+            <div class="summary-card glass-panel card-receitas">
+                <div class="summary-info">
+                    <h3>Receitas</h3>
+                    <div class="value" id="summary-receitas">R$ 0,00</div>
+                </div>
+                <div class="summary-icon">
+                    <i class="fa-solid fa-arrow-up"></i>
+                </div>
+            </div>
+            <div class="summary-card glass-panel card-despesas">
+                <div class="summary-info">
+                    <h3>Despesas</h3>
+                    <div class="value" id="summary-despesas">R$ 0,00</div>
+                </div>
+                <div class="summary-icon">
+                    <i class="fa-solid fa-arrow-down"></i>
+                </div>
+            </div>
+            <div class="summary-card glass-panel card-saldo">
+                <div class="summary-info">
+                    <h3>Saldo Mensal</h3>
+                    <div class="value" id="summary-saldo">R$ 0,00</div>
+                </div>
+                <div class="summary-icon">
+                    <i class="fa-solid fa-scale-balanced"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Grid (2 Columns) -->
+        <div class="dashboard-grid">
+            
+            <!-- Coluna Esquerda: Formulários e Metas -->
+            <div class="col-left">
+                <!-- Cadastro (Transação / Categoria) -->
+                <div class="panel glass-panel">
+                    <div class="panel-header">
+                        <h2>Lançamentos</h2>
+                        <div class="tab-btn-group">
+                            <button class="tab-btn active" onclick="switchTab('tab-transacao')">Transação</button>
+                            <button class="tab-btn" onclick="switchTab('tab-categoria')">Categoria</button>
+                        </div>
+                    </div>
+
+                    <!-- Form Transação -->
+                    <div id="tab-transacao" class="tab-content">
+                        <form id="form-transacao" onsubmit="handleNewTransaction(event)">
+                            <div class="form-group">
+                                <label for="tx-desc">Descrição</label>
+                                <input type="text" id="tx-desc" class="input-field" placeholder="Ex: Salário, Aluguel, Supermercado" required style="width: 100%;">
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="tx-valor">Valor (R$)</label>
+                                    <input type="number" id="tx-valor" step="0.01" class="input-field" placeholder="0.00" required style="width: 100%;">
+                                </div>
+                                <div class="form-group">
+                                    <label for="tx-tipo">Tipo</label>
+                                    <select id="tx-tipo" class="input-field" required onchange="loadCategoriesForSelect()">
+                                        <option value="despesa" selected>Despesa</option>
+                                        <option value="receita">Receita</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="tx-categoria">Categoria</label>
+                                    <select id="tx-categoria" class="input-field" required>
+                                        <!-- Dinâmico -->
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="tx-data">Data</label>
+                                    <input type="date" id="tx-data" class="input-field" style="width: 100%;">
+                                </div>
+                            </div>
+                            <button type="submit" class="btn">
+                                <i class="fa-solid fa-plus"></i> Adicionar Transação
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Form Categoria -->
+                    <div id="tab-categoria" class="tab-content" style="display: none;">
+                        <form id="form-categoria" onsubmit="handleNewCategory(event)">
+                            <div class="form-group">
+                                <label for="cat-nome">Nome da Categoria</label>
+                                <input type="text" id="cat-nome" class="input-field" placeholder="Ex: Saúde, Lazer, Educação" required style="width: 100%;">
+                            </div>
+                            <div class="form-group">
+                                <label for="cat-tipo">Tipo de Categoria</label>
+                                <select id="cat-tipo" class="input-field" required>
+                                    <option value="despesa" selected>Despesas (Saída)</option>
+                                    <option value="receita">Receitas (Entrada)</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn">
+                                <i class="fa-solid fa-folder-plus"></i> Criar Categoria
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Metas Financeiras -->
+                <div class="panel glass-panel">
+                    <div class="panel-header">
+                        <h2>Metas de Economia</h2>
+                        <button class="btn btn-mini btn-secondary" onclick="openNewGoalModal()">
+                            <i class="fa-solid fa-plus"></i> Nova Meta
+                        </button>
+                    </div>
+                    <div class="goals-list" id="goals-container">
+                        <!-- Dinâmico -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Coluna Direita: Gráficos e Transações -->
+            <div class="col-right">
+                <!-- Gráfico de Despesas -->
+                <div class="panel glass-panel">
+                    <div class="panel-header">
+                        <h2>Despesas por Categoria</h2>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="chartCategorias"></canvas>
+                        <div id="chart-empty-state" class="empty-state" style="display: none; position: absolute;">
+                            <i class="fa-solid fa-chart-pie empty-state-icon"></i>
+                            <p>Sem despesas registradas no período.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Transações Recentes -->
+                <div class="panel glass-panel">
+                    <div class="panel-header">
+                        <h2>Transações do Período</h2>
+                    </div>
+                    <div class="transactions-table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Descrição</th>
+                                    <th>Categoria</th>
+                                    <th>Data</th>
+                                    <th>Valor</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="transactions-table-body">
+                                <!-- Dinâmico -->
+                            </tbody>
+                        </table>
+                        <div id="table-empty-state" class="empty-state" style="display: none;">
+                            <i class="fa-solid fa-receipt empty-state-icon"></i>
+                            <p>Nenhuma transação cadastrada para este mês.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Nova Meta -->
+    <div id="modal-goal" class="modal">
+        <div class="modal-content glass-panel">
+            <h3 class="modal-title">Nova Meta Financeira</h3>
+            <form id="form-meta" onsubmit="handleNewGoal(event)">
+                <div class="form-group">
+                    <label for="meta-nome">Nome da Meta</label>
+                    <input type="text" id="meta-nome" class="input-field" placeholder="Ex: Viagem, Fundo de Emergência" required style="width: 100%;">
+                </div>
+                <div class="form-group">
+                    <label for="meta-alvo">Valor Alvo (R$)</label>
+                    <input type="number" id="meta-alvo" step="0.01" class="input-field" placeholder="0.00" required style="width: 100%;">
+                </div>
+                <div class="form-group">
+                    <label for="meta-prazo">Prazo (Opcional)</label>
+                    <input type="date" id="meta-prazo" class="input-field" style="width: 100%;">
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('modal-goal')" style="width: 50%;">Cancelar</button>
+                    <button type="submit" class="btn" style="width: 50%;">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Progresso Meta -->
+    <div id="modal-progress" class="modal">
+        <div class="modal-content glass-panel">
+            <h3 class="modal-title" id="progress-modal-title">Lançar no Progresso</h3>
+            <form id="form-progress" onsubmit="handleGoalProgress(event)">
+                <input type="hidden" id="progress-meta-id">
+                <div class="form-group">
+                    <label for="progress-valor">Valor a Adicionar (R$)</label>
+                    <input type="number" id="progress-valor" step="0.01" class="input-field" placeholder="0.00" required style="width: 100%;">
+                    <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.5rem;">Use valores negativos para resgatar/diminuir.</p>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('modal-progress')" style="width: 50%;">Cancelar</button>
+                    <button type="submit" class="btn" style="width: 50%;">Confirmar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Editar Transação -->
+    <div id="modal-edit-transaction" class="modal">
+        <div class="modal-content glass-panel">
+            <h3 class="modal-title">Editar Transação</h3>
+            <form id="form-edit-transacao" onsubmit="handleEditTransaction(event)">
+                <input type="hidden" id="edit-tx-id">
+                <div class="form-group">
+                    <label for="edit-tx-desc">Descrição</label>
+                    <input type="text" id="edit-tx-desc" class="input-field" required style="width: 100%;">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="edit-tx-valor">Valor (R$)</label>
+                        <input type="number" id="edit-tx-valor" step="0.01" class="input-field" required style="width: 100%;">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-tx-tipo">Tipo</label>
+                        <select id="edit-tx-tipo" class="input-field" required onchange="loadCategoriesForEditSelect()">
+                            <option value="despesa">Despesa</option>
+                            <option value="receita">Receita</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="edit-tx-categoria">Categoria</label>
+                        <select id="edit-tx-categoria" class="input-field" required>
+                            <!-- Dinâmico -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-tx-data">Data</label>
+                        <input type="date" id="edit-tx-data" class="input-field" style="width: 100%;">
+                    </div>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal('modal-edit-transaction')" style="width: 50%;">Cancelar</button>
+                    <button type="submit" class="btn" style="width: 50%;">Salvar Alterações</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <!-- JS Logic -->
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
