@@ -54,3 +54,21 @@ def deletar_transacao(transacao_id):
         return False
     finally:
         session.close()
+
+def atualizar_transacao(transacao_id, descricao, valor, tipo, categoria_id, data=None):
+    session = get_session()
+    try:
+        t = session.query(Transacao).filter_by(id=transacao_id).first()
+        if t:
+            t.descricao = descricao
+            t.valor = valor
+            t.tipo = TipoTransacao(tipo)
+            t.categoria_id = categoria_id
+            if data:
+                t.data = data
+            session.commit()
+            session.refresh(t)
+            return t
+        return None
+    finally:
+        session.close()
