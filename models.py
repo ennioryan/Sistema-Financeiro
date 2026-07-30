@@ -27,7 +27,7 @@ class Transacao(Base):
     data = Column(Date, default=datetime.date.today)
     categoria_id = Column(Integer, ForeignKey("categorias.id"))
 
-    categoria = relationship("Categoria", back_populates="transacoes")
+    categoria = relationship("Categoria", back_populates="transacoes", lazy="joined")
 
 class Meta(Base):
     __tablename__ = "metas"
