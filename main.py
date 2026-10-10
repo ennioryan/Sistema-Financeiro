@@ -3,7 +3,7 @@ from fastapi.responses import JSONResponse
 from fastapi.exceptions import RequestValidationError, ResponseValidationError
 from fastapi.staticfiles import StaticFiles
 from database import engine, Base
-from routers import categoria_router, transacao_router, meta_router, views_router
+from routers import categoria_router, transacao_router, meta_router, views_router, auth_router
 import logging
 
 # Configurar logging básico para tracebacks no console
@@ -19,15 +19,30 @@ app = FastAPI(
     version="1.0.0"
 )
 
+def sanitizar_erros_validacao(erros: list[dict]) -> list[dict]:
+    """Remove senhas e dados sensíveis de erros de validação antes de logar ou responder."""
+    sanitizados = []
+    for err in erros:
+        e = dict(err)
+        loc = [str(x).lower() for x in e.get("loc", ())]
+        if any("senha" in x or "password" in x or "hash" in x for x in loc):
+            if "input" in e:
+                e["input"] = "******"
+            if "ctx" in e:
+                e.pop("ctx", None)
+        sanitizados.append(e)
+    return sanitizados
+
 # Exception handler para erros de validação de envio (RequestValidationError - HTTP 422)
 @app.exception_handler(RequestValidationError)
 async def request_validation_exception_handler(request: Request, exc: RequestValidationError):
-    logger.error(f"Erro de validação na requisição: {exc.errors()}")
+    erros_sanitizados = sanitizar_erros_validacao(exc.errors())
+    logger.error(f"Erro de validação na requisição: {erros_sanitizados}")
     return JSONResponse(
         status_code=422,
         content={
             "detail": "Os dados enviados na requisição são inválidos.",
-            "errors": exc.errors()
+            "errors": erros_sanitizados
         }
     )
 
@@ -61,6 +76,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # Incluir roteadores
 app.include_router(views_router.router)
+app.include_router(auth_router.router)
 app.include_router(categoria_router.router)
 app.include_router(transacao_router.router)
 app.include_router(meta_router.router)
