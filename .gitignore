@@ -13,3 +13,5 @@ build/
 out/
 .cache/
 .parcel-cache/
+*.dump
+*.sql
