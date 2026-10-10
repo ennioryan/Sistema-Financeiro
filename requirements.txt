@@ -7,3 +7,6 @@ uvicorn[standard]
 pydantic
 jinja2
 python-multipart
+bcrypt
+pyjwt
+email-validator
