@@ -1,3 +1,44 @@
+// Interceptor global para redirecionar em caso de 401 (sessão expirada / não autenticado)
+const originalFetch = window.fetch;
+window.fetch = async function(...args) {
+    const response = await originalFetch.apply(this, args);
+    if (response.status === 401) {
+        // Redireciona para /login se ainda não estiver na tela de login
+        if (!window.location.pathname.includes("/login")) {
+            sessionStorage.setItem("auth_message", "Sua sessão expirou. Por favor, faça login novamente.");
+            window.location.href = "/login?expired=1";
+        }
+    }
+    return response;
+};
+
+// Função de logout chamada pelo botão 'Sair'
+async function handleLogout() {
+    try {
+        await fetch("/api/auth/logout", { method: "POST" });
+    } catch (err) {
+        console.error("Erro na requisição de logout:", err);
+    } finally {
+        window.location.href = "/login";
+    }
+}
+
+// Carrega o usuário atual para garantir cabeçalho sincronizado
+async function loadCurrentUser() {
+    try {
+        const res = await fetch("/api/auth/me");
+        if (res.ok) {
+            const user = await res.json();
+            const el = document.getElementById("user-display-name");
+            if (el && user.nome) {
+                el.innerText = user.nome;
+            }
+        }
+    } catch (err) {
+        console.error("Erro ao carregar dados do usuário:", err);
+    }
+}
+
 // Global state
 let chartInstance = null;
 let allCategories = [];
@@ -5,6 +46,9 @@ let currentTransactions = [];
 
 // DOM Loaded Initialization
 document.addEventListener("DOMContentLoaded", () => {
+    // Sincroniza dados do usuário
+    loadCurrentUser();
+
     // Set current month and year in inputs
     const now = new Date();
     document.getElementById("filter-month").value = now.getMonth() + 1;
@@ -26,6 +70,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("filter-month").addEventListener("change", loadDashboardData);
     document.getElementById("filter-year").addEventListener("change", loadDashboardData);
 });
+
 
 // Toast notifications helper
 function showToast(message, type = "success") {

@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Cadastre-se no Finanças Pro. Comece hoje a gerenciar seus gastos, ganhos e metas com inteligência e praticidade.">
+    <title>Finanças Pro | Cadastro</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- CSS Estilos -->
+    <link rel="stylesheet" href="/static/css/style.css">
+    <!-- FontAwesome para ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body>
+    <div class="auth-wrapper">
+        <div class="auth-card glass-panel" style="max-width: 490px;">
+            <div class="auth-header">
+                <a href="/login" class="auth-brand">
+                    <i class="fa-solid fa-wallet brand-icon"></i>
+                    <span class="brand-name">Finanças Pro</span>
+                </a>
+                <h1 class="auth-title">Crie sua conta</h1>
+                <p class="auth-subtitle">Preencha os dados abaixo para começar a organizar sua vida financeira</p>
+            </div>
+
+            <!-- Alerta de Erro -->
+            <div id="auth-error" class="auth-alert auth-alert-error" style="display: none;">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <div id="auth-error-text" style="flex: 1;"></div>
+            </div>
+
+            <form id="form-cadastro" onsubmit="handleCadastro(event)">
+                <div class="form-group">
+                    <label for="nome">Nome Completo</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-user input-icon"></i>
+                        <input
+                            type="text"
+                            id="nome"
+                            name="nome"
+                            class="input-field"
+                            placeholder="Ex: Ana Silva"
+                            required
+                            minlength="2"
+                            autocomplete="name"
+                            autofocus
+                            oninput="validateFormState()"
+                        >
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">E-mail</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-envelope input-icon"></i>
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            class="input-field"
+                            placeholder="seu@email.com"
+                            required
+                            autocomplete="email"
+                            oninput="validateFormState()"
+                        >
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="senha">Senha</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-lock input-icon"></i>
+                        <input
+                            type="password"
+                            id="senha"
+                            name="senha"
+                            class="input-field"
+                            placeholder="Crie uma senha forte"
+                            required
+                            autocomplete="new-password"
+                            oninput="onPasswordInput()"
+                        >
+                        <button
+                            type="button"
+                            class="toggle-password"
+                            onclick="togglePasswordVisibility('senha', this)"
+                            aria-label="Mostrar ou ocultar senha"
+                            title="Mostrar ou ocultar senha"
+                        >
+                            <i class="fa-solid fa-eye"></i>
+                        </button>
+                    </div>
+
+                    <!-- Checklist em Tempo Real -->
+                    <div class="password-checklist">
+                        <div class="password-checklist-header">Regras da Senha:</div>
+                        <div id="rule-length" class="rule-item">
+                            <i class="fa-regular fa-circle"></i>
+                            <span>6 a 14 caracteres</span>
+                        </div>
+                        <div id="rule-uppercase" class="rule-item">
+                            <i class="fa-regular fa-circle"></i>
+                            <span>Pelo menos 1 letra maiúscula</span>
+                        </div>
+                        <div id="rule-lowercase" class="rule-item">
+                            <i class="fa-regular fa-circle"></i>
+                            <span>Pelo menos 1 letra minúscula</span>
+                        </div>
+                        <div id="rule-number" class="rule-item">
+                            <i class="fa-regular fa-circle"></i>
+                            <span>Pelo menos 1 número</span>
+                        </div>
+                        <div id="rule-special" class="rule-item">
+                            <i class="fa-regular fa-circle"></i>
+                            <span>Pelo menos 1 caractere especial (ex: !@#$%^&*)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmar-senha">Confirmar Senha</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-shield-halved input-icon"></i>
+                        <input
+                            type="password"
+                            id="confirmar-senha"
+                            name="confirmar-senha"
+                            class="input-field"
+                            placeholder="Repita sua senha"
+                            required
+                            autocomplete="new-password"
+                            oninput="onPasswordInput()"
+                        >
+                        <button
+                            type="button"
+                            class="toggle-password"
+                            onclick="togglePasswordVisibility('confirmar-senha', this)"
+                            aria-label="Mostrar ou ocultar senha"
+                            title="Mostrar ou ocultar senha"
+                        >
+                            <i class="fa-solid fa-eye"></i>
+                        </button>
+                    </div>
+                    <div id="rule-match" class="rule-item" style="margin-top: 0.5rem; font-size: 0.8rem;">
+                        <i class="fa-regular fa-circle"></i>
+                        <span>As senhas coincidem</span>
+                    </div>
+                </div>
+
+                <button type="submit" id="btn-submit" class="btn" style="margin-top: 1.5rem;" disabled>
+                    <span id="btn-text">Criar Conta</span>
+                    <i id="btn-icon" class="fa-solid fa-user-plus"></i>
+                </button>
+            </form>
+
+            <div class="auth-footer">
+                Já tem uma conta? <a href="/login">Fazer login</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Alternar visibilidade de senha
+        function togglePasswordVisibility(inputId, btn) {
+            const input = document.getElementById(inputId);
+            const icon = btn.querySelector("i");
+            if (input.type === "password") {
+                input.type = "text";
+                icon.classList.remove("fa-eye");
+                icon.classList.add("fa-eye-slash");
+            } else {
+                input.type = "password";
+                icon.classList.remove("fa-eye-slash");
+                icon.classList.add("fa-eye");
+            }
+        }
+
+        function setRuleStatus(elementId, isValid) {
+            const el = document.getElementById(elementId);
+            const icon = el.querySelector("i");
+            if (isValid) {
+                el.classList.add("valid");
+                el.classList.remove("invalid");
+                icon.className = "fa-solid fa-circle-check";
+            } else {
+                el.classList.remove("valid");
+                el.classList.add("invalid");
+                icon.className = "fa-regular fa-circle";
+            }
+        }
+
+        // Validação em tempo real das regras da senha
+        function onPasswordInput() {
+            const senha = document.getElementById("senha").value;
+            const confirmarSenha = document.getElementById("confirmar-senha").value;
+
+            // 1. 6 a 14 caracteres
+            const validLength = senha.length >= 6 && senha.length <= 14;
+            setRuleStatus("rule-length", validLength);
+
+            // 2. 1 maiúscula
+            const validUppercase = /[A-Z]/.test(senha);
+            setRuleStatus("rule-uppercase", validUppercase);
+
+            // 3. 1 minúscula
+            const validLowercase = /[a-z]/.test(senha);
+            setRuleStatus("rule-lowercase", validLowercase);
+
+            // 4. 1 número
+            const validNumber = /[0-9]/.test(senha);
+            setRuleStatus("rule-number", validNumber);
+
+            // 5. 1 caractere especial
+            const validSpecial = /[^a-zA-Z0-9\s]/.test(senha);
+            setRuleStatus("rule-special", validSpecial);
+
+            // Confirmação de senha
+            const validMatch = senha.length > 0 && senha === confirmarSenha;
+            setRuleStatus("rule-match", validMatch);
+
+            validateFormState();
+        }
+
+        function validateFormState() {
+            const nome = document.getElementById("nome").value.trim();
+            const email = document.getElementById("email").value.trim();
+            const senha = document.getElementById("senha").value;
+            const confirmarSenha = document.getElementById("confirmar-senha").value;
+
+            const validLength = senha.length >= 6 && senha.length <= 14;
+            const validUppercase = /[A-Z]/.test(senha);
+            const validLowercase = /[a-z]/.test(senha);
+            const validNumber = /[0-9]/.test(senha);
+            const validSpecial = /[^a-zA-Z0-9\s]/.test(senha);
+            const validMatch = senha.length > 0 && senha === confirmarSenha;
+
+            const allPasswordRulesValid = validLength && validUppercase && validLowercase && validNumber && validSpecial && validMatch;
+            const basicFieldsValid = nome.length >= 2 && email.includes("@") && email.includes(".");
+
+            const btnSubmit = document.getElementById("btn-submit");
+            if (allPasswordRulesValid && basicFieldsValid) {
+                btnSubmit.disabled = false;
+            } else {
+                btnSubmit.disabled = true;
+            }
+        }
+
+        // Submissão do cadastro
+        async function handleCadastro(event) {
+            event.preventDefault();
+            const errorBox = document.getElementById("auth-error");
+            const errorText = document.getElementById("auth-error-text");
+            const btnSubmit = document.getElementById("btn-submit");
+            const btnText = document.getElementById("btn-text");
+            const btnIcon = document.getElementById("btn-icon");
+
+            errorBox.style.display = "none";
+
+            const nome = document.getElementById("nome").value.trim();
+            const email = document.getElementById("email").value.trim();
+            const senha = document.getElementById("senha").value;
+            const confirmarSenha = document.getElementById("confirmar-senha").value;
+
+            if (senha !== confirmarSenha) {
+                errorText.innerText = "A senha e a confirmação de senha não coincidem.";
+                errorBox.style.display = "flex";
+                return;
+            }
+
+            // Ativar loading
+            btnSubmit.disabled = true;
+            btnSubmit.classList.add("btn-loading");
+            btnText.innerText = "Criando conta...";
+            btnIcon.className = "fa-solid fa-spinner fa-spin";
+
+            try {
+                const res = await fetch("/api/auth/cadastro", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ nome, email, senha })
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) {
+                    let msg = "Não foi possível criar sua conta.";
+                    if (res.status === 409) {
+                        msg = data.detail || "Este e-mail já está cadastrado no sistema.";
+                    } else if (res.status === 422) {
+                        if (data.errors && Array.isArray(data.errors)) {
+                            msg = data.errors.map(e => e.msg.replace(/^Value error,\s*/, "")).join(" | ");
+                        } else if (data.detail) {
+                            msg = typeof data.detail === "string" ? data.detail : JSON.stringify(data.detail);
+                        }
+                    } else if (data.detail) {
+                        msg = data.detail;
+                    }
+
+                    errorText.innerText = msg;
+                    errorBox.style.display = "flex";
+                    btnSubmit.disabled = false;
+                    btnSubmit.classList.remove("btn-loading");
+                    btnText.innerText = "Criar Conta";
+                    btnIcon.className = "fa-solid fa-user-plus";
+                    return;
+                }
+
+                // Cadastro com sucesso: já autenticado, redireciona ao dashboard
+                window.location.href = "/";
+            } catch (err) {
+                console.error("Erro na requisição de cadastro:", err);
+                errorText.innerText = "Erro ao conectar ao servidor. Tente novamente mais tarde.";
+                errorBox.style.display = "flex";
+                btnSubmit.disabled = false;
+                btnSubmit.classList.remove("btn-loading");
+                btnText.innerText = "Criar Conta";
+                btnIcon.className = "fa-solid fa-user-plus";
+            }
+        }
+    </script>
+</body>
+</html>

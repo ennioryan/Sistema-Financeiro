@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Acesse sua conta no Finanças Pro. Controle suas receitas, despesas e metas financeiras com segurança.">
+    <title>Finanças Pro | Entrar</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- CSS Estilos -->
+    <link rel="stylesheet" href="/static/css/style.css">
+    <!-- FontAwesome para ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body>
+    <div class="auth-wrapper">
+        <div class="auth-card glass-panel">
+            <div class="auth-header">
+                <a href="/login" class="auth-brand">
+                    <i class="fa-solid fa-wallet brand-icon"></i>
+                    <span class="brand-name">Finanças Pro</span>
+                </a>
+                <h1 class="auth-title">Bem-vindo de volta</h1>
+                <p class="auth-subtitle">Acesse sua conta para gerenciar suas finanças</p>
+            </div>
+
+            <!-- Alerta de Sessão Expirada / Informação -->
+            <div id="auth-info" class="auth-alert auth-alert-info" style="display: none;">
+                <i class="fa-solid fa-circle-info"></i>
+                <div id="auth-info-text"></div>
+            </div>
+
+            <!-- Alerta de Erro -->
+            <div id="auth-error" class="auth-alert auth-alert-error" style="display: none;">
+                <i class="fa-solid fa-circle-exclamation"></i>
+                <div id="auth-error-text"></div>
+            </div>
+
+            <form id="form-login" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label for="email">E-mail</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-envelope input-icon"></i>
+                        <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            class="input-field"
+                            placeholder="seu@email.com"
+                            required
+                            autocomplete="email"
+                            autofocus
+                        >
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="senha">Senha</label>
+                    <div class="input-wrapper">
+                        <i class="fa-solid fa-lock input-icon"></i>
+                        <input
+                            type="password"
+                            id="senha"
+                            name="senha"
+                            class="input-field"
+                            placeholder="Digite sua senha"
+                            required
+                            autocomplete="current-password"
+                        >
+                        <button
+                            type="button"
+                            class="toggle-password"
+                            onclick="togglePasswordVisibility('senha', this)"
+                            aria-label="Mostrar ou ocultar senha"
+                            title="Mostrar ou ocultar senha"
+                        >
+                            <i class="fa-solid fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" id="btn-submit" class="btn" style="margin-top: 1.5rem;">
+                    <span id="btn-text">Entrar</span>
+                    <i id="btn-icon" class="fa-solid fa-arrow-right-to-bracket"></i>
+                </button>
+            </form>
+
+            <div class="auth-footer">
+                Não tem uma conta? <a href="/cadastro">Cadastre-se gratuitamente</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Checar mensagem de sessão expirada ou aviso armazenado
+        document.addEventListener("DOMContentLoaded", () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const expiredParam = urlParams.get("expired");
+            const storedMsg = sessionStorage.getItem("auth_message");
+
+            if (expiredParam || storedMsg) {
+                const infoBox = document.getElementById("auth-info");
+                const infoText = document.getElementById("auth-info-text");
+                infoText.innerText = storedMsg || "Sua sessão expirou. Por favor, entre novamente.";
+                infoBox.style.display = "flex";
+                sessionStorage.removeItem("auth_message");
+            }
+        });
+
+        // Alternar visibilidade de senha
+        function togglePasswordVisibility(inputId, btn) {
+            const input = document.getElementById(inputId);
+            const icon = btn.querySelector("i");
+            if (input.type === "password") {
+                input.type = "text";
+                icon.classList.remove("fa-eye");
+                icon.classList.add("fa-eye-slash");
+            } else {
+                input.type = "password";
+                icon.classList.remove("fa-eye-slash");
+                icon.classList.add("fa-eye");
+            }
+        }
+
+        // Submeter login
+        async function handleLogin(event) {
+            event.preventDefault();
+            const errorBox = document.getElementById("auth-error");
+            const errorText = document.getElementById("auth-error-text");
+            const btnSubmit = document.getElementById("btn-submit");
+            const btnText = document.getElementById("btn-text");
+            const btnIcon = document.getElementById("btn-icon");
+
+            errorBox.style.display = "none";
+
+            const email = document.getElementById("email").value.trim();
+            const senha = document.getElementById("senha").value;
+
+            // Ativar loading
+            btnSubmit.disabled = true;
+            btnSubmit.classList.add("btn-loading");
+            btnText.innerText = "Entrando...";
+            btnIcon.className = "fa-solid fa-spinner fa-spin";
+
+            try {
+                const res = await fetch("/api/auth/login", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ email, senha })
+                });
+
+                const data = await res.json();
+
+                if (!res.ok) {
+                    // Erro genérico conforme especificação
+                    const msg = (res.status === 401)
+                        ? "E-mail ou senha inválidos"
+                        : (data.detail || "Ocorreu um erro ao realizar o login.");
+                    errorText.innerText = msg;
+                    errorBox.style.display = "flex";
+                    btnSubmit.disabled = false;
+                    btnSubmit.classList.remove("btn-loading");
+                    btnText.innerText = "Entrar";
+                    btnIcon.className = "fa-solid fa-arrow-right-to-bracket";
+                    return;
+                }
+
+                // Sucesso: redireciona para o dashboard
+                window.location.href = "/";
+            } catch (err) {
+                console.error("Erro na requisição de login:", err);
+                errorText.innerText = "Não foi possível conectar ao servidor. Tente novamente.";
+                errorBox.style.display = "flex";
+                btnSubmit.disabled = false;
+                btnSubmit.classList.remove("btn-loading");
+                btnText.innerText = "Entrar";
+                btnIcon.className = "fa-solid fa-arrow-right-to-bracket";
+            }
+        }
+    </script>
+</body>
+</html>

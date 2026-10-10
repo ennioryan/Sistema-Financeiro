@@ -23,30 +23,43 @@
                 <i class="fa-solid fa-wallet brand-icon"></i>
                 <div class="brand-name">Finanças Pro</div>
             </div>
-            <div class="period-picker">
-                <label for="filter-month" style="font-size: 0.85rem; color: var(--text-secondary);">Período:</label>
-                <select id="filter-month" class="input-field">
-                    <option value="1">Janeiro</option>
-                    <option value="2">Fevereiro</option>
-                    <option value="3">Março</option>
-                    <option value="4">Abril</option>
-                    <option value="5">Maio</option>
-                    <option value="6">Junho</option>
-                    <option value="7">Julho</option>
-                    <option value="8">Agosto</option>
-                    <option value="9">Setembro</option>
-                    <option value="10">Outubro</option>
-                    <option value="11">Novembro</option>
-                    <option value="12">Dezembro</option>
-                </select>
-                <select id="filter-year" class="input-field">
-                    <option value="2024">2024</option>
-                    <option value="2025">2025</option>
-                    <option value="2026" selected>2026</option>
-                    <option value="2027">2027</option>
-                </select>
+            <div class="header-actions">
+                <div class="period-picker">
+                    <label for="filter-month" style="font-size: 0.85rem; color: var(--text-secondary);">Período:</label>
+                    <select id="filter-month" class="input-field">
+                        <option value="1">Janeiro</option>
+                        <option value="2">Fevereiro</option>
+                        <option value="3">Março</option>
+                        <option value="4">Abril</option>
+                        <option value="5">Maio</option>
+                        <option value="6">Junho</option>
+                        <option value="7">Julho</option>
+                        <option value="8">Agosto</option>
+                        <option value="9">Setembro</option>
+                        <option value="10">Outubro</option>
+                        <option value="11">Novembro</option>
+                        <option value="12">Dezembro</option>
+                    </select>
+                    <select id="filter-year" class="input-field">
+                        <option value="2024">2024</option>
+                        <option value="2025">2025</option>
+                        <option value="2026" selected>2026</option>
+                        <option value="2027">2027</option>
+                    </select>
+                </div>
+                <div class="user-nav">
+                    <div class="user-greeting">
+                        <i class="fa-solid fa-circle-user user-icon"></i>
+                        <span>Olá, <strong id="user-display-name">{% if usuario and usuario.nome %}{{ usuario.nome }}{% else %}Usuário{% endif %}</strong></span>
+                    </div>
+                    <button id="btn-logout" class="btn-logout" onclick="handleLogout()" title="Sair da conta">
+                        <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                        <span>Sair</span>
+                    </button>
+                </div>
             </div>
         </header>
+
 
         <!-- Resumo Financeiro Cards -->
         <div class="summary-grid">
